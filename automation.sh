@@ -28,3 +28,20 @@ cd /var/log/apache2/
 filename=$myname"-httpd-logs-"$timestamp
 tar -cf ${filename}.tar *.log
 aws s3 cp ${filename}.tar s3://${s3_bucket}/${filename}.tar
+
+invent_file="/var/www/html/inventory.html"
+
+if ! [ -f $invent_file ]
+then
+        touch $invent_file
+        echo "<h><b>Log Type &ensp;&ensp;  Date Created  &ensp;&ensp; Type &ensp;&ensp; Size" > $invent_file
+fi
+size=$(ls -lh | grep "$filename" | awk '{print $5}')
+echo "<p>httpd-logs &ensp;&ensp; $timestamp &ensp;&ensp; tar &ensp;&ensp; $size</p>" >> $invent_file
+
+if  [ ! -f  /etc/cron.d/automation ]
+then
+	echo  "0 18 * * * \troot\t/root/Automation_Project/automation.sh" > /etc/cron.d/automation
+fi
+
+
